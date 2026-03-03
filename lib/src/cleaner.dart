@@ -2,6 +2,42 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:yaml/yaml.dart';
 
+/// Finds localization keys used in Dart source content.
+///
+/// Supports single-line and multi-line usage patterns (e.g., accessor and key
+/// split across lines).
+Set<String> findUsedKeysInContent(String content, Set<String> allKeys) {
+  if (allKeys.isEmpty) return <String>{};
+
+  final String keysPattern = allKeys.map(RegExp.escape).join('|');
+
+  // Quick pre-check: skip if content doesn't contain any key substring
+  if (!content.contains(RegExp(keysPattern))) return <String>{};
+
+  final RegExp regex = RegExp(
+    // ignore: prefer_interpolation_to_compose_strings
+    r'(?:' // Start non-capturing group for all possible access patterns
+        r'(?:[a-zA-Z0-9_]+(?:\?)?\.)+' // e.g., `_appLocalizations.`, `l10n?.` (null-aware)
+        r'|'
+        r'[a-zA-Z0-9_]+\.of\(\s*(?:context|Get\.context\!?|AppNavigation\.context|this\.context|BuildContext\s+\w+)[\s,]*\)\!?\s*\.\s*' // `of(context)!.key`, `of(Get.context!,\n)!.key`
+        r'|'
+        r'[a-zA-Z0-9_]+\.\w+\(\s*\)\s*\.\s*' // `SomeClass.method().key`
+        r')'
+        r'\s*' // Allow whitespace/newlines between accessor and key (fixes multi-line usage)
+        r'(' +
+    keysPattern +
+    r')(?:\b|\s*\()', // Key as getter or method (e.g., `key` or `key(param)`)
+    multiLine: true,
+    dotAll: true, // Makes `.` match newlines (crucial for multi-line cases)
+  );
+
+  final Set<String> usedKeys = <String>{};
+  for (final Match match in regex.allMatches(content)) {
+    usedKeys.add(match.group(1)!); // Capture only the key
+  }
+  return usedKeys;
+}
+
 /// Scans the project for unused localization keys and removes them from `.arb` files.
 void runLocalizationCleaner({bool keepUnused = false}) {
   final File yamlFile = File('l10n.yaml'); // Path to the l10n.yaml file
@@ -50,36 +86,13 @@ void runLocalizationCleaner({bool keepUnused = false}) {
   final Set<String> usedKeys = <String>{};
   final Directory libDir = Directory('lib');
 
-  // Reg Exp to detect localization keys
-  final String keysPattern = allKeys.map(RegExp.escape).join('|');
-  final RegExp regex = RegExp(
-    r'(?:' // Start non-capturing group for all possible access patterns
-            r'(?:[a-zA-Z0-9_]+\.)+' // e.g., `_appLocalizations.` or `cubit.appLocalizations.`
-            r'|'
-            r'[a-zA-Z0-9_]+\.of\(\s*(?:context|AppNavigation\.context|this\.context|BuildContext\s+\w+)\s*\)\!?\s*\.\s*' // `of(context)!.key` with optional whitespace
-            r'|'
-            r'[a-zA-Z0-9_]+\.\w+\(\s*\)\s*\.\s*' // `SomeClass.method().key`
-            r')'
-            r'(' +
-        keysPattern +
-        r')\b', // The actual key
-    multiLine: true,
-    dotAll: true, // Makes `.` match newlines (crucial for multi-line cases)
-  );
-
   // Scan Dart files for key usage
   for (final FileSystemEntity file in libDir.listSync(recursive: true)) {
     if (file is File &&
         file.path.endsWith('.dart') &&
         !excludedFiles.contains(file.path)) {
       final String content = file.readAsStringSync();
-
-      // Quick pre-check: skip files that don't contain any key substring
-      if (!content.contains(RegExp(keysPattern))) continue;
-
-      for (final Match match in regex.allMatches(content)) {
-        usedKeys.add(match.group(1)!); // Capture only the key
-      }
+      usedKeys.addAll(findUsedKeysInContent(content, allKeys));
     }
   }
 
