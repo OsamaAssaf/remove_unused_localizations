@@ -19,7 +19,7 @@ Set<String> findUsedKeysInContent(String content, Set<String> allKeys) {
     r'(?:' // Start non-capturing group for all possible access patterns
         r'(?:[a-zA-Z0-9_]+(?:\?)?\.)+' // e.g., `_appLocalizations.`, `l10n?.` (null-aware)
         r'|'
-        r'[a-zA-Z0-9_]+\.of\(\s*(?:context|Get\.context\!?|AppNavigation\.context|this\.context|BuildContext\s+\w+)\s*\)\!?\s*\.\s*' // `of(context)!.key`, `of(Get.context!)!.key`
+        r'[a-zA-Z0-9_]+\.of\(\s*(?:context|Get\.context\!?|AppNavigation\.context|this\.context|BuildContext\s+\w+)[\s,]*\)\!?\s*\.\s*' // `of(context)!.key`, `of(Get.context!,\n)!.key`
         r'|'
         r'[a-zA-Z0-9_]+\.\w+\(\s*\)\s*\.\s*' // `SomeClass.method().key`
         r')'

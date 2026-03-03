@@ -13,6 +13,7 @@ void main() {
     'nothingToSync',
     'syncedDataset',
     'criticalError',
+    'fixedPriceProjectTheItemCannotBeBillable',
   };
 
   group('findUsedKeysInContent', () {
@@ -109,6 +110,18 @@ void main() {
       ''';
       final used = findUsedKeysInContent(content, testKeys);
       expect(used, contains('criticalError'));
+    });
+
+    test('detects of() with comma and newline before closing paren', () {
+      const content = '''
+        Components().snackBar(
+          message: AppLocalizations.of(
+            Get.context!,
+          )!.fixedPriceProjectTheItemCannotBeBillable,
+        );
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('fixedPriceProjectTheItemCannotBeBillable'));
     });
 
     test('returns empty set when no keys are used', () {
