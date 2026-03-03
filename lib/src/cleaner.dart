@@ -17,16 +17,16 @@ Set<String> findUsedKeysInContent(String content, Set<String> allKeys) {
   final RegExp regex = RegExp(
     // ignore: prefer_interpolation_to_compose_strings
     r'(?:' // Start non-capturing group for all possible access patterns
-        r'(?:[a-zA-Z0-9_]+\.)+' // e.g., `_appLocalizations.` or `cubit.appLocalizations.`
+        r'(?:[a-zA-Z0-9_]+(?:\?)?\.)+' // e.g., `_appLocalizations.`, `l10n?.` (null-aware)
         r'|'
-        r'[a-zA-Z0-9_]+\.of\(\s*(?:context|AppNavigation\.context|this\.context|BuildContext\s+\w+)\s*\)\!?\s*\.\s*' // `of(context)!.key` with optional whitespace
+        r'[a-zA-Z0-9_]+\.of\(\s*(?:context|Get\.context\!?|AppNavigation\.context|this\.context|BuildContext\s+\w+)\s*\)\!?\s*\.\s*' // `of(context)!.key`, `of(Get.context!)!.key`
         r'|'
         r'[a-zA-Z0-9_]+\.\w+\(\s*\)\s*\.\s*' // `SomeClass.method().key`
         r')'
         r'\s*' // Allow whitespace/newlines between accessor and key (fixes multi-line usage)
         r'(' +
     keysPattern +
-    r')\b', // The actual key
+    r')(?:\b|\s*\()', // Key as getter or method (e.g., `key` or `key(param)`)
     multiLine: true,
     dotAll: true, // Makes `.` match newlines (crucial for multi-line cases)
   );

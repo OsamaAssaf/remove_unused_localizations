@@ -9,6 +9,10 @@ void main() {
     'maturity_block_description',
     'content_restriction_description',
     'geo_restriction_description',
+    'externalDescription',
+    'nothingToSync',
+    'syncedDataset',
+    'criticalError',
   };
 
   group('findUsedKeysInContent', () {
@@ -73,6 +77,38 @@ void main() {
         'content_restriction_title',
         'geo_restriction_description',
       ]));
+    });
+
+    test('detects AppLocalizations.of(Get.context!)!.key (GetX)', () {
+      const content = '''
+        displayLabel: AppLocalizations.of(Get.context!)!.externalDescription,
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('externalDescription'));
+    });
+
+    test('detects null-aware getter (variable?.key)', () {
+      const content = '''
+        return (true, localizations?.nothingToSync ?? 'Nothing to sync');
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('nothingToSync'));
+    });
+
+    test('detects null-aware method with parameter (variable?.key(param))', () {
+      const content = '''
+        ? (_syncLocalizations?.syncedDataset(type.name) ?? '');
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('syncedDataset'));
+    });
+
+    test('detects method with nested parentheses (variable?.key(e.toString()))', () {
+      const content = '''
+        localizations?.criticalError(e.toString()) ?? 'Critical error';
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('criticalError'));
     });
 
     test('returns empty set when no keys are used', () {

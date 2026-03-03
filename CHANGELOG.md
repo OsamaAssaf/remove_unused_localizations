@@ -23,3 +23,10 @@
 ## 1.0.1 - Documentation Update
 - 📝 Updated `README.md` with detailed usage instructions, examples, and feature descriptions.
 - ✅ Improved overall clarity for installation and usage on pub.dev.
+
+## 1.0.2 - Extended Localization Pattern Support
+- 🐛 **Fixed**: Plugin no longer incorrectly removes used translations when localization keys are accessed across multiple lines (e.g., `AppLocalizations.of(context)!.\n  subscribe_button`).
+- 🔍 Detection regex now allows optional whitespace and newlines between the accessor and the key.
+- 🐛 **Fixed**: Plugin now detects `AppLocalizations.of(Get.context!)!.key` (GetX).
+- 🐛 **Fixed**: Plugin now detects null-aware access (`variable?.key`, `variable?.method(param)`).
+- 🐛 **Fixed**: Plugin now detects method calls with parameters (e.g., `syncedDataset(type.name)`, `criticalError(e.toString())`).
