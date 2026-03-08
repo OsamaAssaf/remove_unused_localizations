@@ -32,7 +32,7 @@
 - 🐛 **Fixed**: Plugin now detects method calls with parameters (e.g., `key(type.name)`, `key(e.toString())`).
 - 🐛 **Fixed**: Plugin now detects `AppLocalizations.of(Get.context!,\n)!.key` (formatted multi-line with trailing comma).
 
-## 1.0.3 - Configurable Dart Scan Directories
+## 1.1.0 - Configurable Dart Scan Directories
 
 - ✨ **New**: Add optional `remove_unused_localizations.yaml` config file to specify custom directories to scan for Dart files.
 - 📂 Supports monorepos, shared packages, and projects with Dart code outside `lib`.
