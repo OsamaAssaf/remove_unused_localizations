@@ -38,6 +38,45 @@ Set<String> findUsedKeysInContent(String content, Set<String> allKeys) {
   return usedKeys;
 }
 
+/// Reads dart-scan-dirs from remove_unused_localizations.yaml.
+/// Returns ['lib'] if the file is missing, invalid, or the key is absent.
+List<String> _getDartScanDirs() {
+  const String defaultDir = 'lib';
+  const List<String> defaultDirs = [defaultDir];
+
+  final File configFile = File('remove_unused_localizations.yaml');
+  if (!configFile.existsSync()) {
+    return defaultDirs;
+  }
+
+  try {
+    final String content = configFile.readAsStringSync();
+    final dynamic data = loadYaml(content);
+    if (data == null || data is! Map) {
+      return defaultDirs;
+    }
+
+    final dynamic dartScanDirs = data['dart-scan-dirs'];
+    if (dartScanDirs == null) {
+      return defaultDirs;
+    }
+
+    if (dartScanDirs is! YamlList) {
+      return defaultDirs;
+    }
+
+    final List<String> result = dartScanDirs
+        .whereType<String>()
+        .where((s) => s.trim().isNotEmpty)
+        .map((s) => s.trim())
+        .toList();
+
+    return result.isEmpty ? defaultDirs : result;
+  } catch (_) {
+    return defaultDirs;
+  }
+}
+
 /// Scans the project for unused localization keys and removes them from `.arb` files.
 void runLocalizationCleaner({bool keepUnused = false}) {
   final File yamlFile = File('l10n.yaml'); // Path to the l10n.yaml file
@@ -84,15 +123,22 @@ void runLocalizationCleaner({bool keepUnused = false}) {
   }
 
   final Set<String> usedKeys = <String>{};
-  final Directory libDir = Directory('lib');
+  final List<String> dartScanDirs = _getDartScanDirs();
 
   // Scan Dart files for key usage
-  for (final FileSystemEntity file in libDir.listSync(recursive: true)) {
-    if (file is File &&
-        file.path.endsWith('.dart') &&
-        !excludedFiles.contains(file.path)) {
-      final String content = file.readAsStringSync();
-      usedKeys.addAll(findUsedKeysInContent(content, allKeys));
+  for (final String dirPath in dartScanDirs) {
+    final Directory dir = Directory(dirPath);
+    if (!dir.existsSync()) {
+      print('⚠️ Warning: dart-scan-dir "$dirPath" does not exist, skipping.');
+      continue;
+    }
+    for (final FileSystemEntity file in dir.listSync(recursive: true)) {
+      if (file is File &&
+          file.path.endsWith('.dart') &&
+          !excludedFiles.contains(file.path)) {
+        final String content = file.readAsStringSync();
+        usedKeys.addAll(findUsedKeysInContent(content, allKeys));
+      }
     }
   }
 

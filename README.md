@@ -54,6 +54,36 @@ If you want to keep the unused keys in order to delete it manually you can use t
 dart run remove_unused_localizations --keep-unused
 ```
 
+## Configuration
+
+By default, the tool scans only the `lib` directory for Dart files that use localization keys. For monorepos, shared packages, or projects with Dart code in other directories, you can add a `remove_unused_localizations.yaml` config file at your project root (next to `l10n.yaml`).
+
+**Config file:** `remove_unused_localizations.yaml`
+
+```yaml
+# Directories to scan for Dart files that use localization keys.
+# Paths are relative to the project root. Default: [lib]
+dart-scan-dirs:
+  - lib
+  - packages/app1/lib
+  - packages/shared/lib
+```
+
+- The config file is **optional**. When absent, the tool scans `lib` only (backward compatible).
+- Paths in `dart-scan-dirs` are relative to the project root.
+- If a directory does not exist, the tool prints a warning and skips it.
+
+**Note:** If you use a non-standard project structure (e.g. you set `arb-dir` to a custom path like `reference/l10n` in `l10n.yaml`), make sure to also configure `dart-scan-dirs` in `remove_unused_localizations.yaml` to include all directories that contain Dart code using localization keys. Otherwise, the tool may incorrectly mark keys as unused.
+
+**Example for monorepos:**
+
+```yaml
+dart-scan-dirs:
+  - packages/app1/lib
+  - packages/app2/lib
+  - packages/shared/lib
+```
+
 ## Example Output
 
 ```

@@ -31,3 +31,11 @@
 - 🐛 **Fixed**: Plugin now detects null-aware access (`variable?.key`, `variable?.method(param)`).
 - 🐛 **Fixed**: Plugin now detects method calls with parameters (e.g., `key(type.name)`, `key(e.toString())`).
 - 🐛 **Fixed**: Plugin now detects `AppLocalizations.of(Get.context!,\n)!.key` (formatted multi-line with trailing comma).
+
+## 1.0.3 - Configurable Dart Scan Directories
+
+- ✨ **New**: Add optional `remove_unused_localizations.yaml` config file to specify custom directories to scan for Dart files.
+- 📂 Supports monorepos, shared packages, and projects with Dart code outside `lib`.
+- ⚙️ New `dart-scan-dirs` option: list of directories to scan (paths relative to project root).
+- 🔄 Defaults to `lib` when config is absent for backward compatibility.
+- 📝 Updated README with Configuration section and note about syncing with `l10n.yaml`.
