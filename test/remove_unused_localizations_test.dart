@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:remove_unused_localizations/src/cleaner.dart';
+import 'package:test/test.dart';
 
 void main() {
   const Set<String> testKeys = {
