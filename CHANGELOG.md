@@ -39,3 +39,10 @@
 - ⚙️ New `dart-scan-dirs` option: list of directories to scan (paths relative to project root).
 - 🔄 Defaults to `lib` when config is absent for backward compatibility.
 - 📝 Updated README with Configuration section and note about syncing with `l10n.yaml`.
+
+## 1.1.1 - Pure Dart & Multiline Fix
+
+- **Breaking**: Converted from Flutter package to pure Dart package. Removed Flutter SDK dependency; package now uses `test` and `lints` instead of `flutter_test` and `flutter_lints`.
+- **Fixed**: Plugin now correctly detects used localization keys in multi-line chained property access (e.g., `context.l10n.key` when split across lines).
+- **Fixed**: Improved regex to allow optional whitespace around dots in chained access patterns.
+- **Fixed**: Refined method-call pattern for more accurate detection of `SomeClass.method().key` usage.
