@@ -51,6 +51,18 @@ void main() {
       expect(used, contains('maturity_block_title'));
     });
 
+    test('detects multi-line chained property access', () {
+      const content = '''
+        Text(
+          context
+              .l10n
+              .maturity_block_title,
+        ),
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('maturity_block_title'));
+    });
+
     test('detects multi-line method call with parameter', () {
       const content = '''
         final desc = l10n.
