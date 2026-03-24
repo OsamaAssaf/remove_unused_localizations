@@ -46,3 +46,7 @@
 - **Fixed**: Plugin now correctly detects used localization keys in multi-line chained property access (e.g., `context.l10n.key` when split across lines).
 - **Fixed**: Improved regex to allow optional whitespace around dots in chained access patterns.
 - **Fixed**: Refined method-call pattern for more accurate detection of `SomeClass.method().key` usage.
+
+## 1.1.2 - Update README.md file
+
+- Update README to reflect version bump of remove_unused_localizations to 1.1.2 in pubspec.yaml
