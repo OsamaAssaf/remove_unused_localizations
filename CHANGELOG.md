@@ -50,3 +50,9 @@
 ## 1.1.2 - Update README.md file
 
 - Update README to reflect version bump of remove_unused_localizations to 1.1.2 in pubspec.yaml
+
+## 1.1.3 - Nullable of() and Call-Chain Detection
+
+- **Fixed**: Plugin now detects nullable `AppLocalizations.of(context)?.key` (a `?` after `of(...)`).
+- **Fixed**: Plugin now detects localization keys after a call with arguments, including `ref.read(l10nProvider).key`, `ref.watch(l10nProvider).key`, `ref.read(l10nProvider)!.key`, and `sl<AppLocalizations>().key`.
+- **Fixed**: Null-assert chains such as `localizations!.key` are now detected.

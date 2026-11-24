@@ -17,9 +17,9 @@ Set<String> findUsedKeysInContent(String content, Set<String> allKeys) {
   final RegExp regex = RegExp(
     // ignore: prefer_interpolation_to_compose_strings
     r'(?:' // Start non-capturing group for all possible access patterns
-        r'(?:[a-zA-Z0-9_]+(?:\?)?\s*\.\s*)+' // e.g., `_appLocalizations.`, `l10n?.` (null-aware)
+        r'(?:[a-zA-Z0-9_]+(?:<[^>]*>)?(?:\([^)]*\))?(?:[!?])?\s*\.\s*)+' // e.g., `l10n?.`, `ref.read(provider).`, `sl<AppLocalizations>().`
         r'|'
-        r'[a-zA-Z0-9_]+\.of\(\s*(?:context|Get\.context\!?|AppNavigation\.context|this\.context|BuildContext\s+\w+)[\s,]*\)\!?\s*\.\s*' // `of(context)!.key`, `of(Get.context!,\n)!.key`
+        r'[a-zA-Z0-9_]+\.of\(\s*(?:context|Get\.context\!?|AppNavigation\.context|this\.context|BuildContext\s+\w+)[\s,]*\)[!?]?\s*\.\s*' // `of(context)!.key`, `of(context)?.key`, `of(Get.context!,\n)!.key`
         r'|'
         r'[A-Za-z_]\w*\.[A-Za-z_]\w*\(\s*\)\s*\.\s*' // `SomeClass.method().key`
         r')'
