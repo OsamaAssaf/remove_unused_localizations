@@ -13,8 +13,11 @@ A Flutter development tool that automatically detects and removes unused localiz
 localizations.welcome           // Generic localization instance
 S.of(context).welcome           // Flutter-generated localization access
 AppLocalizations.of(context)!.welcome // Nullable-safe access
+AppLocalizations.of(context)?.welcome // Nullable of(context) access
 _myCubit.appLocalizations.welcome    // Deep object chains
 SomeClass().localizations.welcome    // Method return chaining
+ref.read(l10nProvider).welcome       // Call chains with arguments
+sl<AppLocalizations>().welcome       // Generic call chains
 ```
 
 ✅ **Excludes important files** (e.g., `app_localizations.dart`).  
@@ -26,7 +29,7 @@ Add the package to your **dev dependencies** in `pubspec.yaml`:
 
 ```yaml
 dev_dependencies:
-  remove_unused_localizations: ^1.1.2
+  remove_unused_localizations: ^1.1.3
 ```
 
 Run:

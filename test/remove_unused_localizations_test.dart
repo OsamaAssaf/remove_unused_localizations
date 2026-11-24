@@ -14,6 +14,9 @@ void main() {
     'syncedDataset',
     'criticalError',
     'fixedPriceProjectTheItemCannotBeBillable',
+    'trafficLightRestBadge',
+    'microphoneError',
+    'welcome',
   };
 
   group('findUsedKeysInContent', () {
@@ -158,6 +161,63 @@ void main() {
       const content = 'l10n.some_key';
       final used = findUsedKeysInContent(content, <String>{});
       expect(used, isEmpty);
+    });
+
+    test('detects nullable of(context)?.key', () {
+      const content = '''
+        AppLocalizations.of(context)?.trafficLightRestBadge ?? "REST"
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('trafficLightRestBadge'));
+    });
+
+    test('detects ref.read(provider).key', () {
+      const content = '''
+        ref.read(l10nProvider).microphoneError
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('microphoneError'));
+    });
+
+    test('detects ref.read(provider)!.key', () {
+      const content = '''
+        ref.read(l10nProvider)!.microphoneError
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('microphoneError'));
+    });
+
+    test('detects ref.watch(provider).key', () {
+      const content = '''
+        ref.watch(l10nProvider).microphoneError
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('microphoneError'));
+    });
+
+    test('detects multiline ref.read(provider).key', () {
+      const content = '''
+        ref.read(l10nProvider).
+          microphoneError
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('microphoneError'));
+    });
+
+    test('detects null-assert chain (variable!.key)', () {
+      const content = '''
+        localizations!.nothingToSync
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('nothingToSync'));
+    });
+
+    test('detects generic call chain (sl<AppLocalizations>().key)', () {
+      const content = '''
+        sl<AppLocalizations>().welcome
+      ''';
+      final used = findUsedKeysInContent(content, testKeys);
+      expect(used, contains('welcome'));
     });
   });
 }
